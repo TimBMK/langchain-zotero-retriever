@@ -1,6 +1,6 @@
 """Zotero retriever"""
 
-from typing import Any, List
+from typing import Any, List, Optional
 
 from langchain_core.callbacks import CallbackManagerForRetrieverRun
 from langchain_core.documents import Document
