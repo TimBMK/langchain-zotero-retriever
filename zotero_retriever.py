@@ -2,7 +2,7 @@
 
 from typing import Any, List, Optional
 
-from langchain_core.callbacks import CallbackManagerForRetrieverRun
+from langchain_core.callbacks import CallbackManagerForRetrieverRun, AsyncCallbackManagerForRetrieverRun
 from langchain_core.documents import Document
 from langchain_core.retrievers import BaseRetriever
 from typing import Literal
@@ -81,7 +81,6 @@ class ZoteroRetriever(BaseRetriever):
     library_type: Literal["user", "group"] = "user"
     api_key: Optional[str] = None
 
-    # TODO: This method must be implemented to retrieve documents.
     def _get_relevant_documents(
         self, query: str, *, run_manager: CallbackManagerForRetrieverRun, **kwargs: Any
     ) -> List[Document]:
@@ -112,7 +111,45 @@ class ZoteroRetriever(BaseRetriever):
             results = zot.items(**args)
         else:
             raise ValueError("Invalid type. Must be 'top' or 'item'.")
+        
+        return self._format_results(results)
     
+    async def _aget_relevant_documents(
+        self, query: str, *, run_manager: AsyncCallbackManagerForRetrieverRun, **kwargs: Any
+    ) -> List[Document]:
+        try:
+            from pyzotero import zotero
+        except ImportError:
+            raise ImportError(
+                "Pyzotero python package not found. "
+                "Please install it with `pip install pyzotero`."
+            )
+        
+        zot = zotero.Zotero(library_id=self.library_id, 
+                            library_type=self.library_type, 
+                            api_key=self.api_key or environ["ZOTERO_API_KEY"])
+
+        args = {
+            "q": query,
+            "itemType": kwargs.get("itemType", ""),
+            "tag": kwargs.get("tag", ""),
+            "qmode": kwargs.get("qmode", "everything"),
+            "since": kwargs.get("since", ""),
+            "limit": kwargs.get("k", self.k),
+        }
+
+        if self.type == "top":
+            results = await zot.top(**args)
+        elif self.type == "items":
+            results = await zot.items(**args)
+        else:
+            raise ValueError("Invalid type. Must be 'top' or 'item'.")
+        
+        return self._format_results(results)
+    
+    def _format_results(
+            self, results: List[dict]
+            ) -> List[Document]:
         docs = [
                 Document(
                     page_content = entry.get("data").get("abstractNote"),
