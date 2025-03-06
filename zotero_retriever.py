@@ -15,12 +15,11 @@ class ZoteroRetriever(BaseRetriever):
     """Zotero retriever.
 
     Setup:
-        Install ``...`` and set environment variable # TODO: Replace with relevant package.
-        ``ZOTERO_API_KEY``.
+        Install ``pyzotero`` and set environment variable ``ZOTERO_API_KEY``.
 
         .. code-block:: bash
 
-            pip install -U ... # TODO: Replace with relevant package.
+            pip install -U pyzotero 
             export ZOTERO_API_KEY="your-api-key"
 
     Key init args:
@@ -28,7 +27,7 @@ class ZoteroRetriever(BaseRetriever):
             Number of results to include.
         type: Literal["top", "items"] = "top"
             Type of search to perform. "Top" retrieves top level Zotero library items, "items" returns any Zotero library items.
-        get_fulltext: bool = False 
+        get_fulltext: bool = True 
             Retrieves full texts if they are attached to the items in the library. If False, or no text is attached, returns an empty string as page_content.
         library_id: str
             ID of the Zotero library to search.
@@ -70,8 +69,6 @@ class ZoteroRetriever(BaseRetriever):
 
             #TODO: add chain example, including prompt template
 
-
-    #TODO: Add async implementation?
     """
 
     k: int = 50
