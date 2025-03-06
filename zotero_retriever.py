@@ -91,7 +91,7 @@ class ZoteroRetriever(BaseRetriever):
         
         zot = zotero.Zotero(library_id=self.library_id, 
                             library_type=self.library_type, 
-                            api_key=self.api_key or environ["ZOTERO_API_KEY"])
+                            api_key=self.api_key or environ.get("ZOTERO_API_KEY", None))
 
         args = {
             "q": query,
@@ -142,7 +142,7 @@ class ZoteroRetriever(BaseRetriever):
         
         zot = zotero.Zotero(library_id=self.library_id, 
                             library_type=self.library_type, 
-                            api_key=self.api_key or environ["ZOTERO_API_KEY"])
+                            api_key=self.api_key or environ.get("ZOTERO_API_KEY", None))
 
         args = {
             "q": query,
