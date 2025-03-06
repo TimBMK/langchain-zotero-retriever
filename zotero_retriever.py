@@ -29,7 +29,7 @@ class ZoteroRetriever(BaseRetriever):
         type: Literal["top", "items"] = "top"
             Type of search to perform. "Top" retrieves top level Zotero library items, "items" returns any Zotero library items.
         get_fulltext: bool = False 
-            Retrieves full texts if they are attached to the items in the library. If False, returns abstracts as text page_content. If True, abstracts are returned as metadata.
+            Retrieves full texts if they are attached to the items in the library. If False, or no text is attached, returns an empty string as page_content.
         library_id: str
             ID of the Zotero library to search.
         library_type: Literal["user", "group"] = "user"
@@ -76,7 +76,7 @@ class ZoteroRetriever(BaseRetriever):
 
     k: int = 50
     type: Literal["top", "items"] = "top" # potentially add other types - but use cases may be very limited
-    get_fulltext: bool = False # retrieves full texts if attached to the items in the library. If False, returns abstracts as text page_content. If True, abstracts are returned as metadata
+    get_fulltext: bool = False # retrieves full texts if attached to the items in the library. If False, or no full text is attached, returns an empty string as page_content
     library_id: str
     library_type: Literal["user", "group"] = "user"
     api_key: Optional[str] = None
@@ -112,8 +112,26 @@ class ZoteroRetriever(BaseRetriever):
         else:
             raise ValueError("Invalid type. Must be 'top' or 'item'.")
         
+        if self.get_fulltext:
+            
+            for entry in results:
+
+                try:
+                    attachment_link = entry.get("links", "").get("attachment", "").get("href", "")
+                    attachment = search(r"items/([^/]+)", attachment_link).group(1) if search(r"items/([^/]+)", attachment_link) else None
+                    full_text = zot.fulltext_item(attachment).get("content", "")
+                except:
+                    full_text = ""
+                    
+                entry["text"] = full_text
+        
+        else:
+            for entry in results:
+                entry["text"] = ""
+
         return self._format_results(results)
     
+
     async def _aget_relevant_documents(
         self, query: str, *, run_manager: AsyncCallbackManagerForRetrieverRun, **kwargs: Any
     ) -> List[Document]:
@@ -145,27 +163,46 @@ class ZoteroRetriever(BaseRetriever):
         else:
             raise ValueError("Invalid type. Must be 'top' or 'item'.")
         
+        if self.get_fulltext:
+            
+            for entry in results:
+
+                try:
+                    attachment_link = entry.get("links", "").get("attachment", "").get("href", "")
+                    attachment = search(r"items/([^/]+)", attachment_link).group(1) if search(r"items/([^/]+)", attachment_link) else None
+                    full_text = await zot.fulltext_item(attachment).get("content", "")
+                except:
+                    full_text = ""
+                    
+                entry["text"] = full_text
+        
+        else:
+            for entry in results:
+                entry["text"] = ""
+        
         return self._format_results(results)
     
+
     def _format_results(
             self, results: List[dict]
             ) -> List[Document]:
         docs = [
                 Document(
-                    page_content = entry.get("data").get("abstractNote"),
+                    page_content = entry.get("text"),
                     metadata={
                         **{
                             "key": entry.get("key", ""), # unique identifier for the document
-                            "type": entry.get("data").get("itemType", ""),
-                            # note that the additional "name" passed here is in case the name is not split into first and last name
+                            "abstractNote": entry.get("data").get("abstractNote", ""),
+                            "itemType": entry.get("data").get("itemType", ""),
                             "tags": ", ".join(f"{tag.get('tag', '')}" for tag in entry.get("data", {}).get("tags", [])),
                         },
-                        **(
+                        **(  
                             {
                                 "authors": ", ".join(f"{creator.get('firstName', '')} {creator.get('lastName', '')}" for creator in entry.get("data", {}).get("creators", [])),
                             }
                             if any("firstName" in creator for creator in entry.get("data", "").get("creators", "")) or 
                             any("lastName" in creator for creator in entry.get("data", "").get("creators", "")) else
+                            # note that the additional "name" passed here is in case the name is not split into first and last name
                             {
                                 "authors": ", ".join(f"{creator.get('name', '')}" for creator in entry.get("data", {}).get("creators", [])),
                             }
@@ -194,7 +231,7 @@ class ZoteroRetriever(BaseRetriever):
                             {
                                 "attachment_link": entry.get("links", "").get("attachment", "").get("href", ""),
                             }
-                            if self.get_fulltext and "attachment" in entry.get("links") else {}
+                            if "attachment" in entry.get("links") else {}
                             
                         )
                         
@@ -203,19 +240,5 @@ class ZoteroRetriever(BaseRetriever):
                 for entry in results
             ]
         
-        if self.get_fulltext:
-            
-            for doc in docs:
-
-                doc.metadata["abstract"] = doc.page_content
-
-                try:
-                    
-                    attachment = search(r"items/([^/]+)", doc.metadata["attachment_link"]).group(1) if search(r"items/([^/]+)", doc.metadata["attachment_link"]) else None
-                    full_text = zot.fulltext_item(attachment).get("content", "")
-                except:
-                    full_text = ""
-
-                doc.page_content = full_text
-
         return docs
+
