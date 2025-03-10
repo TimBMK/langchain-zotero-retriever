@@ -1,0 +1,24 @@
+[project]
+name = "langchain-zotero-retriever"
+version = "0.1.0"
+description = "A retriever for the langchain framework, connecting to the zotero API. Utilizes pyzotero."
+authors = [
+    {name = "Tim König",email = "32549063+TimBMK@users.noreply.github.com"}
+]
+readme = "README.md"
+requires-python = ">=3.9, <4.0"
+dependencies = [
+    "langchain-core (>=0.3.41,<0.4.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.test.dependencies]
+pytest-socket = "^0.7.0"
+pytest-asyncio = "^0.25.3"
+langchain-tests = "0.3.13"
+pyzotero = "^1.6.9"
+
