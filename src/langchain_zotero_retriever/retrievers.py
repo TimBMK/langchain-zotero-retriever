@@ -15,7 +15,7 @@ class ZoteroRetriever(BaseRetriever):
     """Zotero retriever.
 
     Setup:
-        Install ``pyzotero`` and set environment variable ``ZOTERO_API_KEY``.
+        Install ``pyzotero`` and (optionally) set environment variable ``ZOTERO_API_KEY``.
 
         .. code-block:: bash
 
@@ -52,7 +52,7 @@ class ZoteroRetriever(BaseRetriever):
     Instantiate:
         .. code-block:: python
 
-            from ... import ZoteroRetriever #TODO: Replace with relevant package.
+            from langchain-zotero-retriever import ZoteroRetriever
 
             retriever = ZoteroRetriever(
                 k = 50,
@@ -62,12 +62,7 @@ class ZoteroRetriever(BaseRetriever):
     Usage:
         .. code-block:: python
 
-            retriever.invoke("Author_name", qmode="titleCreatorYear", tags="tag1 || tag2", k = 20)
-
-    Use within a chain:
-        .. code-block:: python
-
-            #TODO: add chain example, including prompt template
+            retriever.invoke("Author_name", qmode="titleCreatorYear", tags="tag1 || tag2")
 
     """
 
