@@ -129,58 +129,6 @@ class ZoteroRetriever(BaseRetriever):
         return self._format_results(results)
     
 
-    # functional async implementation would need a full async implementation of the pyzotero package, specifically async zot.top(), zot.items(), and zot.fulltext_item() methods
-    # async def _aget_relevant_documents(
-    #     self, query: str, *, run_manager: AsyncCallbackManagerForRetrieverRun, **kwargs: Any
-    # ) -> List[Document]:
-    #     try:
-    #         from pyzotero import zotero
-    #     except ImportError:
-    #         raise ImportError(
-    #             "Pyzotero python package not found. "
-    #             "Please install it with `pip install pyzotero`."
-    #         )
-        
-    #     zot = zotero.Zotero(library_id=self.library_id, 
-    #                         library_type=self.library_type, 
-    #                         api_key=self.api_key or environ.get("ZOTERO_API_KEY", None))
-
-    #     args = {
-    #         "q": query,
-    #         "itemType": kwargs.get("itemType", ""),
-    #         "tag": kwargs.get("tag", ""),
-    #         "qmode": kwargs.get("qmode", "everything"),
-    #         "since": kwargs.get("since", ""),
-    #         "limit": kwargs.get("k", self.k),
-    #     }
-
-    #     if self.type == "top":
-    #         results = await zot.top(**args) # ! this does not work as async
-    #     elif self.type == "items":
-    #         results = await zot.items(**args) # ! this does not work as async
-    #     else:
-    #         raise ValueError("Invalid type. Must be 'top' or 'item'.")
-        
-    #     if self.get_fulltext:
-            
-    #         for entry in results:
-
-    #             try:
-    #                 attachment_link = entry.get("links", "").get("attachment", "").get("href", "")
-    #                 attachment = search(r"items/([^/]+)", attachment_link).group(1) if search(r"items/([^/]+)", attachment_link) else None
-    #                 full_text = await zot.fulltext_item(attachment).get("content", "") # ! this does not work as async
-    #             except:
-    #                 full_text = ""
-                    
-    #             entry["text"] = full_text
-        
-    #     else:
-    #         for entry in results:
-    #             entry["text"] = ""
-        
-    #     return self._format_results(results)
-    
-
     def _format_results(
             self, results: List[dict]
             ) -> List[Document]:
