@@ -1,6 +1,6 @@
 [project]
 name = "langchain-zotero-retriever"
-version = "0.1.0"
+version = "0.1.1"
 description = "A retriever for the langchain framework, connecting to the zotero API. Utilizes pyzotero."
 authors = [
     {name = "Tim König",email = "32549063+TimBMK@users.noreply.github.com"}
