@@ -133,6 +133,7 @@ class ZoteroRetriever(BaseRetriever):
                     metadata={
                         **{
                             "key": entry.get("key", ""), # unique identifier for the document
+                            "version": entry.get("version", ""), # version of the document
                             "abstractNote": entry.get("data").get("abstractNote", ""),
                             "itemType": entry.get("data").get("itemType", ""),
                             "tags": ", ".join(f"{tag.get('tag', '')}" for tag in entry.get("data", {}).get("tags", [])),
