@@ -2,10 +2,10 @@
 
 [Zotero](https://www.zotero.org/) is an open source reference management system intended for managing bibliographic data and related research materials. You can connect to your personal library, as well as shared group libraries, via the [API](https://www.zotero.org/support/dev/web_api/v3/start). This retriever implementation utilizes [PyZotero](https://github.com/urschrei/pyzotero) to access libraries within the [Langchain](https://python.langchain.com/docs/introduction/) framework. With the retriever, you can access zotero libraries with LLM applications, making it useful for use cases such as RAG or personal research assistants.
 
-The retriever requires pyzotero.
+The retriever requires pyzotero. The langchain-zotero-retriever is available on [PyPI](https://pypi.org/project/langchain-zotero-retriever/).
 
 ```bash
-pip install pyzotero
+pip install -qU langchain-zotero-retriever pyzotero
 ```
 
 
@@ -20,6 +20,8 @@ pip install pyzotero
 - `api_key`: Zotero API key if not set as an environment variable. Optional, required to access non-public group libraries or your personal library. Fetched automatically if provided as ZOTERO_API_KEY environment variable.
 
 ```python
+from langchain_zotero_retriever.retrievers import ZoteroRetriever
+
 retriever = ZoteroRetriever(
     k = 10,
     library_id= "2319375", # a public group library that does not require an API key for access 
